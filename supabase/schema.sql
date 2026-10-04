@@ -1244,9 +1244,9 @@ on conflict (monster_id, item_template_id) do update set drop_chance = excluded.
 -- và thêm Daily Quest (nhiệm vụ ngày, reset theo ngày UTC).
 -- Chạy sau 001–007.
 
--- Nối main_03 (trước đây là chốt cuối, next_quest_id=null) sang chuỗi mới.
-update quests set next_quest_id = 'main_04_kill_rockgolem' where id = 'main_03_return_elder';
-
+-- Tạo các quest mới TRƯỚC (next_quest_id có khoá ngoại tới chính bảng này —
+-- phải insert xong main_04 rồi mới được phép trỏ main_03 sang nó, nếu không
+-- vi phạm ràng buộc khoá ngoại ngay lập tức).
 insert into quests (id, title, description, type, giver_npc_id, target_monster_id, target_count, reward_gold, reward_exp, next_quest_id, level_req) values
   ('main_04_kill_rockgolem', 'Trấn Áp Nham Thạch Quái', 'Sơn Cốc đang bị Nham Thạch Quái quấy nhiễu, tiêu diệt 6 con để mở đường thông thương.', 'kill', null, 'rock_golem', 6, 60, 150, 'main_05_talk_smith2', 10),
   ('main_05_talk_smith2', 'Ghé Thăm Lò Rèn Trấn Biên', 'Thợ Rèn Trấn Biên nghe danh bạn, muốn nhờ tìm nguyên liệu quý.', 'talk', 'smith_2', null, 0, 40, 100, 'main_06_kill_shadowwolf', 12),
@@ -1258,6 +1258,9 @@ on conflict (id) do update set
   giver_npc_id = excluded.giver_npc_id, target_monster_id = excluded.target_monster_id,
   target_count = excluded.target_count, reward_gold = excluded.reward_gold,
   reward_exp = excluded.reward_exp, next_quest_id = excluded.next_quest_id, level_req = excluded.level_req;
+
+-- Giờ mới nối main_03 (trước đây là chốt cuối, next_quest_id=null) sang chuỗi mới.
+update quests set next_quest_id = 'main_04_kill_rockgolem' where id = 'main_03_return_elder';
 
 -- ============================================================
 -- DAILY QUEST — reset theo ngày UTC. Thiết kế tối giản: diệt 15 quái bất kỳ
